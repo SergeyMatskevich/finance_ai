@@ -1,14 +1,15 @@
 # Backend
-fastapi==0.68.1
-uvicorn==0.15.0
+fastapi==0.115.12
+uvicorn==0.33.0
 sqlalchemy==1.4.23
 psycopg2-binary==2.9.1
 redis>=4.0.2
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.5
-pydantic==1.8.2
+pydantic==2.10.6
 pydantic[email]>=1.8.2
+pydantic-settings==2.8.1
 
 # AI/ML
 transformers>=4.11.3

@@ -1,4 +1,5 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Family Finance AI"
@@ -16,7 +17,6 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
     
-    class Config:
-        case_sensitive = True
+    model_config = SettingsConfigDict(case_sensitive=True)
 
 settings = Settings() 
