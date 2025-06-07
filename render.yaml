@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: finance-ai-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.8.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: POSTGRES_DB
+        value: family_finance
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+      - key: POSTGRES_SERVER
+        fromDatabase:
+          name: finance-ai-db
+          property: host
+      - key: POSTGRES_PORT
+        fromDatabase:
+          name: finance-ai-db
+          property: port
+
+databases:
+  - name: finance-ai-db
+    databaseName: family_finance
+    user: postgres
+    plan: free 
