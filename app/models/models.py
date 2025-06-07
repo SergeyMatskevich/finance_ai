@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, DateTime, Enum, Table, JSON
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from datetime import datetime
 import enum
 from app.db.database import Base
@@ -49,16 +50,18 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String, nullable=True)  # Может быть null для Apple auth
+    hashed_password = Column(String)
     full_name = Column(String)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     role = Column(Enum(UserRole), default=UserRole.MEMBER)
     apple_id = Column(String, unique=True, nullable=True)  # ID пользователя от Apple
     
     # Relationships
     families = relationship("Family", secondary=user_family, back_populates="members")
     transactions = relationship("Transaction", back_populates="user")
+    categories = relationship("Category", back_populates="user")
     budgets = relationship("Budget", back_populates="user")
     accounts = relationship("Account", back_populates="user")
 
@@ -100,8 +103,7 @@ class Transaction(Base):
     type = Column(Enum(TransactionType))
     amount = Column(Float)
     description = Column(String)
-    category = Column(Enum(TransactionCategory))
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime(timezone=True))
     user_id = Column(Integer, ForeignKey("users.id"))
     family_id = Column(Integer, ForeignKey("families.id"))
     account_id = Column(Integer, ForeignKey("accounts.id"))
@@ -109,12 +111,15 @@ class Transaction(Base):
     items_details = Column(JSON)  # Stores items information
     recurring = Column(Boolean, default=False)
     recurring_details = Column(JSON)  # Stores recurring transaction details
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
     user = relationship("User", back_populates="transactions")
     family = relationship("Family", back_populates="transactions")
     account = relationship("Account", back_populates="transactions")
     items = relationship("TransactionItem", back_populates="transaction")
+    category = relationship("Category", back_populates="transactions")
 
 class TransactionItem(Base):
     __tablename__ = "transaction_items"
@@ -130,21 +135,33 @@ class TransactionItem(Base):
     transaction = relationship("Transaction", back_populates="items")
     user = relationship("User")
 
+class Category(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    type = Column(String)  # income/expense
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user = relationship("User", back_populates="categories")
+    transactions = relationship("Transaction", back_populates="category")
+    budgets = relationship("Budget", back_populates="category")
+
 class Budget(Base):
     __tablename__ = "budgets"
 
     id = Column(Integer, primary_key=True, index=True)
-    category = Column(Enum(TransactionCategory))
     amount = Column(Float)
-    period = Column(String)  # monthly, weekly, yearly
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
+    period = Column(String)  # monthly/yearly
     user_id = Column(Integer, ForeignKey("users.id"))
-    family_id = Column(Integer, ForeignKey("families.id"))
-    
-    # Relationships
+    category_id = Column(Integer, ForeignKey("categories.id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
     user = relationship("User", back_populates="budgets")
-    family = relationship("Family", back_populates="budgets")
+    category = relationship("Category", back_populates="budgets")
 
 class FinancialGoal(Base):
     __tablename__ = "financial_goals"
