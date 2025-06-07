@@ -22,9 +22,7 @@ services:
           name: finance-ai-db
           property: host
       - key: POSTGRES_PORT
-        fromDatabase:
-          name: finance-ai-db
-          property: port
+        value: 5432
 
 databases:
   - name: finance-ai-db
