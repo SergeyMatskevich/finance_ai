@@ -12,7 +12,7 @@ services:
       - key: POSTGRES_DB
         value: family_finance
       - key: POSTGRES_USER
-        value: postgres
+        value: finance_ai_user
       - key: POSTGRES_PASSWORD
         generateValue: true
       - key: POSTGRES_SERVER
@@ -27,5 +27,5 @@ services:
 databases:
   - name: finance-ai-db
     databaseName: family_finance
-    user: postgres
+    user: finance_ai_user
     plan: free 
